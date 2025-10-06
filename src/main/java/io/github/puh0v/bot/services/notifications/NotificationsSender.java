@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис для подготовки списка пользователей и сообщения с уведомлением о запланированном
@@ -69,7 +71,7 @@ public class NotificationsSender {
     }
 
     private void sendMessages(VideoInfo videoInfo, String messageText) {
-        List<SubscriptionsEntity> telegramUsers = subscriptionsRepository.findAllByChannel_ChannelId(videoInfo.getChannelId());
+        Set<SubscriptionsEntity> telegramUsers = subscriptionsRepository.findAllByChannel_ChannelId(videoInfo.getChannelId());
         for (SubscriptionsEntity telegramUser : telegramUsers) {
             Long userId = telegramUser.getUser().getTelegramId();
             messageSender.sendNotificationMessage(updateReceiver, userId, messageText);
