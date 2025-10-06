@@ -3,10 +3,12 @@ package io.github.puh0v.db.subscriptions;
 import io.github.puh0v.db.channels.ChannelsEntity;
 import io.github.puh0v.db.telegramusers.TelegramUsersEntity;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@EqualsAndHashCode(of = {"user", "channel"})
 @Table(name = "subscriptions", uniqueConstraints = @UniqueConstraint(
             name = "uk_notifications_entity",
             columnNames = {"user_id", "channel_id"})
