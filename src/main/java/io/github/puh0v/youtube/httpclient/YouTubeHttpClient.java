@@ -85,7 +85,7 @@ public class YouTubeHttpClient {
                 + "&hub.verify=async"
                 + "&hub.lease_seconds=864000"
                 + "&hub.callback=" + getEncodedUrl(appServerProperties.url() + youTubeProperties.callbackPath())
-                + "&hub.topic=" + getEncodedUrl("https://www.youtube.com/feeds/videos.xml?channel_id=" + channelId);
+                + "&hub.topic=" + getEncodedUrl("https://www.youtube.com/xml/feeds/videos.xml?channel_id=" + channelId);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://pubsubhubbub.appspot.com/subscribe"))
