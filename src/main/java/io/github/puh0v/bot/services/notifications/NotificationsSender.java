@@ -45,7 +45,7 @@ public class NotificationsSender {
     private String getTextForUpcomingStream(VideoInfo videoInfo) {
         return String.format(
                 """
-                ⏰ Пользователь %s запланировал стрим ⏰
+                ⏰ %s запланировал стрим ⏰
                 
                 👉🏻 %s
                 %s
@@ -59,7 +59,7 @@ public class NotificationsSender {
     private String getTextForLiveStream(VideoInfo videoInfo) {
         return String.format(
                 """
-                💥 Пользователь %s начал стрим! 💥
+                💥 %s начал стрим! 💥
                 
                 👉🏻 %s
                 %s
