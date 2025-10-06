@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: stream-tracker-bot
+  datasource:
+    url: "${SPRING_DATASOURCE_URL}"
+    username: "${SPRING_DATASOURCE_USERNAME}"
+    password: "${SPRING_DATASOURCE_PASSWORD}"
+  jpa:
+    hibernate:
+      ddl-auto: "${SPRING_JPA_HIBERNATE_DDL}"
+    show-sql: "${SHOW_SQL}"
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    root: info
+    org.springframework: error
+
+app:
+  server:
+    url: "${MY_SERVER_URL}"
+
+bot:
+  name: "${BOT_NAME}"
+  token: "${BOT_TOKEN}"
+
+youtube:
+  apiKey: "${YOUTUBE_API}"
+  apiBaseUrl: https://www.googleapis.com/youtube/v3
+  mainPageUrl: http://www.youtube.com
+  callback-path: /api/stream-notification
+  videosBaseUrl: http://www.youtube.com/watch?v=
