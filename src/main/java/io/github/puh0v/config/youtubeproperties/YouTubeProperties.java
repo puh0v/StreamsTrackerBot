@@ -1,4 +1,4 @@
-package io.github.puh0v.config;
+package io.github.puh0v.config.youtubeproperties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
