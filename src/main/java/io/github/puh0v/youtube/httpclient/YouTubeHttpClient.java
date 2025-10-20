@@ -1,8 +1,8 @@
 package io.github.puh0v.youtube.httpclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.puh0v.config.AppServerProperties;
-import io.github.puh0v.config.YouTubeProperties;
+import io.github.puh0v.config.botproperties.AppServerProperties;
+import io.github.puh0v.config.youtubeproperties.YouTubeProperties;
 import io.github.puh0v.youtube.dto.channels.ChannelItemDto;
 import io.github.puh0v.youtube.dto.channels.ChannelsListDto;
 import io.github.puh0v.youtube.dto.videos.SnippetDto;
