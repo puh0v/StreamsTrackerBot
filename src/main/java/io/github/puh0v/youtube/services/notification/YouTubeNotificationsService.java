@@ -1,7 +1,7 @@
 package io.github.puh0v.youtube.services.notification;
 
 import io.github.puh0v.bot.services.notifications.NotificationsSender;
-import io.github.puh0v.config.YouTubeProperties;
+import io.github.puh0v.config.youtubeproperties.YouTubeProperties;
 import io.github.puh0v.db.channels.ChannelsEntity;
 import io.github.puh0v.db.channels.ChannelsRepository;
 import io.github.puh0v.db.enums.Platform;
