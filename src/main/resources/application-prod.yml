@@ -1,6 +1,6 @@
 spring:
   application:
-    name: stream-tracker-bot
+    name: "${APP_NAME}"
   datasource:
     url: "${SPRING_DATASOURCE_URL}"
     username: "${SPRING_DATASOURCE_USERNAME}"
@@ -11,18 +11,31 @@ spring:
     show-sql: "${SHOW_SQL}"
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+
 logging:
   level:
     root: info
     org.springframework: error
 
+
 app:
   server:
     url: "${MY_SERVER_URL}"
+  modes:
+    messages:
+      start:
+        enable-image-message: true
+        image-path: "${IMAGE_FOR_START}"
+
 
 bot:
   name: "${BOT_NAME}"
   token: "${BOT_TOKEN}"
+
+
+admin:
+  id: "${ADMIN_ID}"
+
 
 youtube:
   apiKey: "${YOUTUBE_API}"

@@ -3,12 +3,15 @@ package io.github.puh0v.bot.commands.start;
 import io.github.puh0v.bot.commands.CommandNames;
 import io.github.puh0v.bot.buttons.KeyboardFactory;
 import io.github.puh0v.bot.buttons.ListOfButtons;
-import io.github.puh0v.config.BotProperties;
+import io.github.puh0v.bot.services.messagesender.util.MessageSpec;
+import io.github.puh0v.config.botproperties.BotProperties;
 import io.github.puh0v.bot.commands.AbstractCommands;
 import io.github.puh0v.bot.commands.CommandContext;
 import io.github.puh0v.bot.services.messagesender.MessageSender;
+import io.github.puh0v.config.botproperties.messages.StartCommandProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import java.io.File;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 /** Сообщения при первом запуске/перезапуске бота. Также служит главным меню, где находится основной функционал бота.*/
@@ -18,18 +21,47 @@ public class StartCommand extends AbstractCommands {
     private final BotProperties botProperties;
     private final MessageSender messageSender;
     private final ListOfButtons listOfButtons;
+    private final StartCommandProperties startCommandProperties;
 
-    public StartCommand(BotProperties config, ListOfButtons listOfButtons) {
-        super(CommandNames.START);
+
+    public StartCommand(BotProperties config, ListOfButtons listOfButtons, StartCommandProperties startCommandProperties) {
+        super(CommandNames.START.getCode());
         this.botProperties = config;
         this.listOfButtons = listOfButtons;
+        this.startCommandProperties = startCommandProperties;
         this.messageSender = new MessageSender();
     }
 
     @Override
     public void handleCommand(CommandContext commandContext) {
         log.info("[StartCommand] Пользователь {} прислал команду \"{}\"", commandContext.getId(), getCommandName());
-        messageSender.sendReplyMessage(commandContext, getWelcomeMessage(), getReadyKeyboard());
+
+        if (startCommandProperties.isImageReady()) {
+            String imagePath = startCommandProperties.getImagePath();
+            File image = new File(imagePath);
+
+            MessageSpec readyMessage = MessageSpec.builder()
+                    .updateReceiver(commandContext.getUpdateReceiver())
+                    .userId(commandContext.getId())
+                    .text(getWelcomeMessage())
+                    .filePath(image)
+                    .inlineKeyboardMarkup(getReadyKeyboard())
+                    .disableWebPagePreview(true)
+                    .build();
+
+            messageSender.sendMessage(readyMessage);
+
+        } else {
+            MessageSpec readyMessage = MessageSpec.builder()
+                    .updateReceiver(commandContext.getUpdateReceiver())
+                    .userId(commandContext.getId())
+                    .text(getWelcomeMessage())
+                    .inlineKeyboardMarkup(getReadyKeyboard())
+                    .disableWebPagePreview(true)
+                    .build();
+
+            messageSender.sendMessage(readyMessage);
+        }
     }
 
 
