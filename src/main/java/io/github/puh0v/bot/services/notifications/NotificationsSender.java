@@ -1,6 +1,7 @@
 package io.github.puh0v.bot.services.notifications;
 
 import io.github.puh0v.bot.services.messagesender.MessageSender;
+import io.github.puh0v.bot.services.messagesender.util.MessageSpec;
 import io.github.puh0v.bot.services.updatereceiver.UpdateReceiver;
 import io.github.puh0v.db.subscriptions.SubscriptionsEntity;
 import io.github.puh0v.db.subscriptions.SubscriptionsRepository;
@@ -10,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,10 +33,15 @@ public class NotificationsSender {
 
     public void notifySubscribers(VideoInfo videoInfo) {
         if (videoInfo.getStatus() == BroadcastStatus.UPCOMING) {
-            log.info("[NotificationsSender] Рассылаю уведомление о запланированной трансляции: {}", videoInfo);
+            log.info("[NotificationsSender] Рассылаю уведомление о запланированной трансляции: channelId = {}, status = {}",
+                    videoInfo.getChannelId(),
+                    videoInfo.getStatus());
             sendMessages(videoInfo, getTextForUpcomingStream(videoInfo));
+
         } else if (videoInfo.getStatus() == BroadcastStatus.LIVE) {
-            log.info("[NotificationsSender] Рассылаю уведомление о начавшейся трансляции: {}", videoInfo);
+            log.info("[NotificationsSender] Рассылаю уведомление о начавшейся трансляции: channelId = {}, status = {}",
+                    videoInfo.getChannelId(),
+                    videoInfo.getStatus());
             sendMessages(videoInfo, getTextForLiveStream(videoInfo));
         }
     }
@@ -45,7 +49,7 @@ public class NotificationsSender {
     private String getTextForUpcomingStream(VideoInfo videoInfo) {
         return String.format(
                 """
-                ⏰ %s запланировал стрим ⏰
+                ⏰ %s запланировал стрим
                 
                 👉🏻 %s
                 %s
@@ -72,9 +76,17 @@ public class NotificationsSender {
 
     private void sendMessages(VideoInfo videoInfo, String messageText) {
         Set<SubscriptionsEntity> telegramUsers = subscriptionsRepository.findAllByChannel_ChannelId(videoInfo.getChannelId());
+
         for (SubscriptionsEntity telegramUser : telegramUsers) {
             Long userId = telegramUser.getUser().getTelegramId();
-            messageSender.sendNotificationMessage(updateReceiver, userId, messageText);
+
+            MessageSpec readyMessage = MessageSpec.builder()
+                            .updateReceiver(updateReceiver)
+                            .userId(userId)
+                            .text(messageText)
+                            .build();
+
+            messageSender.prepareTextMessageWithNotification(readyMessage);
         }
     }
 }

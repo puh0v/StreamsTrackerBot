@@ -1,12 +1,13 @@
 package io.github.puh0v.bot.services.messagesender;
 
 import io.github.puh0v.bot.commands.CommandContext;
-import io.github.puh0v.bot.services.updatereceiver.UpdateReceiver;
+import io.github.puh0v.bot.services.messagesender.util.MessageSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
@@ -16,29 +17,51 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 public class MessageSender {
 
-    public void sendReplyMessage(CommandContext commandContext, String text, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        log.info("[MessageSender] Подготавливаю сообщение \"{}\" для пользователя {}",
-                text, commandContext.getId());
+    public void sendMessage(MessageSpec readyMessage) {
+        Long userId = readyMessage.userId();
 
-        SendMessage sendMessage = SendMessage.builder()
-                .chatId(commandContext.getId().toString())
-                .text(text)
-                .parseMode(ParseMode.HTML)
-                .replyMarkup(inlineKeyboardMarkup)
-                .build();
-        sendMessage(commandContext.getUpdateReceiver(), sendMessage, commandContext.getId());
+        if (readyMessage.filePath() != null) {
+            log.info("[MessageSender] Подготавливаю сообщение для отправки пользователю {}", userId);
+
+            SendPhoto sendPhoto = SendPhoto.builder()
+                    .chatId(userId.toString())
+                    .photo(new InputFile(readyMessage.filePath()))
+                    .caption(readyMessage.text())
+                    .replyMarkup(readyMessage.inlineKeyboardMarkup())
+                    .build();
+
+            SendMessageWithPhoto(sendPhoto, readyMessage);
+
+        } else {
+            log.info("[MessageSender] Подготавливаю изображение с текстом для отправки пользователю {}", userId);
+
+            SendMessage sendMessage = SendMessage.builder()
+                    .chatId(userId.toString())
+                    .text(readyMessage.text())
+                    .parseMode(ParseMode.HTML)
+                    .replyMarkup(readyMessage.inlineKeyboardMarkup())
+                    .disableWebPagePreview(readyMessage.disableWebPagePreview())
+                    .build();
+
+            sendTextMessage(sendMessage, readyMessage);
+        }
     }
 
 
-    public void sendNotificationMessage(UpdateReceiver updateReceiver, Long userId, String text) {
-        log.info("[MessageSender] Начинаю подготовку сообщения с уведомлением для пользователя {}", userId);
+    public void prepareTextMessageWithNotification(MessageSpec readyMessage) {
+        Long userId = readyMessage.userId();
+        log.info("[MessageSender] Начинаю подготовку сообщения с уведомлением для отправки пользователю {}", userId);
+
         SendMessage sendMessage = SendMessage.builder()
                 .chatId(userId.toString())
-                .text(text)
+                .text(readyMessage.text())
                 .parseMode(ParseMode.HTML)
+                .disableWebPagePreview(false)
                 .build();
-        sendMessage(updateReceiver, sendMessage, userId);
+
+        sendTextMessage(sendMessage, readyMessage);
     }
+
 
     public void sendAnswerCallbackQuery(CommandContext commandContext, AnswerCallbackQuery answerCallbackQuery) {
         try {
@@ -50,12 +73,21 @@ public class MessageSender {
     }
 
 
-    private void sendMessage(UpdateReceiver updateReceiver, SendMessage sendMessage, Long userId) {
+    private void sendTextMessage(SendMessage sendMessage, MessageSpec readyMessage) {
         try {
-            updateReceiver.execute(sendMessage);
-            log.info("[MessageSender] Сообщение успешно отправлено пользователю  {}!", userId);
+            readyMessage.updateReceiver().execute(sendMessage);
+            log.info("[MessageSender] Сообщение успешно отправлено пользователю  {}!", readyMessage.userId());
         } catch (TelegramApiException e) {
-            log.error("[MessageSender] Возникла ошибка при отправке сообщения пользователю {}", userId, e);
+            log.error("[MessageSender] Возникла ошибка при отправке сообщения пользователю {}", readyMessage.userId(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void SendMessageWithPhoto(SendPhoto sendPhoto, MessageSpec readyMessage) {
+        try {
+            readyMessage.updateReceiver().execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            log.error("[MessageSender] Возникла ошибка при отправке изображения пользователю {}", readyMessage.userId(), e);
             throw new RuntimeException(e);
         }
     }
