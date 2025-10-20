@@ -1,6 +1,6 @@
 package io.github.puh0v.bot.services.updatereceiver;
 
-import io.github.puh0v.config.BotProperties;
+import io.github.puh0v.config.botproperties.BotProperties;
 import io.github.puh0v.bot.services.commandsservice.CommandsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
